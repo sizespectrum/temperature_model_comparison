@@ -26,6 +26,7 @@ tempFun <- function(w, temperature, t_ref, Ea, c_a)
 #' 
 #' 
 #' @param params A \linkS4class{MizerParams} object
+#' @param scalar Default is set to false. If true, will return the value of the different scalars in a list instead of the modified param object
 #' @param t_ref Temperature where scalar equals 1. Default is 10 degrees C.
 #' @param temperature Ambient temperature influencing the scalar. Only an integer at the moment meaning that temperature do not vary
 #' during projections. Default is set to t_ref (i.e. temperature has no effect)
@@ -41,7 +42,7 @@ tempFun <- function(w, temperature, t_ref, Ea, c_a)
 #' @return A \linkS4class{MizerParams} object
 #' @export
 
-temperatureMizer <- function(params, t_ref = 10, temperature = t_ref, 
+temperatureMizer <- function(params, scalar = F, t_ref = 10, temperature = t_ref, 
                              ea_int = 0,ca_int = 0, ea_met = 0, ca_met = 0, ea_mor = 0, ca_mor = 0)
 {
   intakeScalar <- tempFun(w = params@w, t_ref = t_ref, temperature = temperature, Ea = ea_int, c_a = ca_int)
@@ -52,5 +53,6 @@ temperatureMizer <- function(params, t_ref = 10, temperature = t_ref,
   params@intake_max <- sweep(params@intake_max,2, intakeScalar, "*", check.margin = FALSE)  
   params@metab <- sweep(params@metab,2, metScalar, "*", check.margin = FALSE)
   params@mu_b <- sweep(params@mu_b,2, mortScalar, "*", check.margin = FALSE)
-  return(params)
+  
+  if(scalar) return(list("intake" = intakeScalar, "metabolsim" = metScalar, "mortality" = mortScalar)) else return(params)
 }
